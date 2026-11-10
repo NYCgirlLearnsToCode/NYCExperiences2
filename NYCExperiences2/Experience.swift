@@ -11,4 +11,5 @@ struct Experience {
     let title: String
     let price: Float
     let imageUrl: String
+    let description: String
 }

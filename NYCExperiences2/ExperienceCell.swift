@@ -30,12 +30,18 @@ class ExperienceCell: UICollectionViewCell {
 
     private lazy var imgView: UIImageView = {
         let imgView = UIImageView()
-        imgView.backgroundColor = .systemCyan
         imgView.translatesAutoresizingMaskIntoConstraints = false
         imgView.contentMode = .scaleAspectFill
         imgView.clipsToBounds = true
 
         return imgView
+    }()
+
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.hidesWhenStopped = true
+        return indicator
     }()
 
     override init(frame: CGRect) {
@@ -53,12 +59,14 @@ class ExperienceCell: UICollectionViewCell {
         imgView.image = nil
         subtitleLabel.text = ""
         representedImageUrl = nil
+        loadingIndicator.stopAnimating()
     }
 
     func setupViews() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(imgView)
         contentView.addSubview(subtitleLabel)
+        contentView.addSubview(loadingIndicator)
 
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -73,11 +81,16 @@ class ExperienceCell: UICollectionViewCell {
             subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             subtitleLabel.topAnchor.constraint(equalTo: imgView.bottomAnchor, constant: 8.0),
-            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+            loadingIndicator.centerXAnchor.constraint(equalTo: imgView.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: imgView.centerYAnchor)
         ])
     }
 
     func configureWith(_ experience: Experience) {
+        self.imgView.image = nil
+        self.loadingIndicator.startAnimating()
         self.titleLabel.text = experience.title
 
         let url = URL(string: experience.imageUrl)
@@ -89,8 +102,12 @@ class ExperienceCell: UICollectionViewCell {
                 DispatchQueue.main.async {
                     guard let self = self, self.representedImageUrl == url else { return }
                     self.imgView.image = image
+                    self.loadingIndicator.stopAnimating()
                 }
             }
+        } else {
+            self.loadingIndicator.stopAnimating()
+            self.imgView.image = UIImage(systemName: "photo.fill")
         }
         self.subtitleLabel.text = "$\(experience.price)"
     }

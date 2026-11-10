@@ -8,8 +8,20 @@
 import UIKit
 
 class URLSessionImageLoader: ImageLoader {
-    func getImageFrom(url: URL, completion: @escaping (UIImage?) -> Void) {
-        URLSession.shared.dataTask(with: url) { (data, response, error) in
+
+    private let imageCache = NSCache<NSString, UIImage>()
+
+    func getImageFrom(url: URL,completion: @escaping (UIImage?) -> Void) {
+        //check if image exists in cache
+
+        if let image = imageCache.object(forKey: NSString(string: url.absoluteString)) {
+            completion(image)
+            return
+        }
+
+        //if it does, get from cache, else proceed
+        URLSession.shared.dataTask(with: url) { [weak self] (data, response, error) in
+            guard let self = self else { return }
             guard let data = data else {
                 print(error)
                 completion(nil)
@@ -27,6 +39,8 @@ class URLSessionImageLoader: ImageLoader {
                 completion(nil)
                 return
             }
+            //put in cache
+            self.imageCache.setObject(image, forKey: NSString(string: url.absoluteString))
             completion(image)
         }.resume()
     }

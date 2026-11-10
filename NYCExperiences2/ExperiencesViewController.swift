@@ -13,13 +13,16 @@ class ExperiencesViewController: UIViewController {
 
     var experiences = [Experience(title: "Garden workshop",
                                 price: 5.00,
-                                imageUrl: "https://plus.unsplash.com/premium_photo-1680286739871-01142bc609df?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"),
+                                imageUrl: "https://plus.unsplash.com/premium_photo-1680286739871-01142bc609df?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+                                 description: "Intro to gardening sdfgthyjuikolkiuygtfrdes rtytguyhijokjuhygftdrex ygyhujhbgvf ugihuyg END"),
                      Experience(title: "Arts and crafts",
                                 price: 0.0,
-                                imageUrl: "https://images.unsplash.com/photo-1616706161242-f1d591350d1c?q=80&w=1567&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"),
+                                imageUrl: "https://images.unsplash.com/photo-1616706161242-f1d591350d1c?q=80&w=1567&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+                                description: "Intro to arts and crafts sdfgthyjuikolkiuygtfrdes rtytguyhijokjuhygftdrex ygyhujhbgvf ugihuyg sdfgthyjuikolkiuygtfrdes rtytguyhijokjuhygftdrex ygyhujhbgvf ugihuyg END"),
                      Experience(title: "Photography",
                                 price: 19.99,
-                                imageUrl: "https://plus.unsplash.com/premium_photo-1674389991678-0836ca77c7f7?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D")]
+                                imageUrl: "https://plus.unsplash.com/premium_photo-1674389991678-0836ca77c7f7?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
+                                description: "Intro to photography sdfgthyjuikolkiuygtfrdes rtytguyhijokjuhygftdrex ygyhujhbgvf ugihuyg sdfgthyjuikolkiuygtfrdes rtytguyhijokjuhygftdrex ygyhujhbgvf ugihuyg sdfgthyjuikolkiuygtfrdes rtytguyhijokjuhygftdrex ygyhujhbgvf ugihuyg END")]
 
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -65,7 +68,7 @@ extension ExperiencesViewController: UICollectionViewDelegate {
         // grab experience
         let experience = experiences[indexPath.row]
         // pass experience to detail vc
-        let detailVC = ExperienceDetailViewController(experience: experience)
+        let detailVC = ExperienceDetailViewController(experience: experience, imageLoader: self.imageLoader)
         //navigate to detail vc
         self.navigationController?.pushViewController(detailVC, animated: true)
     }
