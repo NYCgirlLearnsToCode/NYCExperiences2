@@ -31,6 +31,14 @@ class ExperienceDetailViewController: UIViewController {
         return imgView
     }()
 
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.style = .medium
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+
     private lazy var subtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -66,17 +74,24 @@ class ExperienceDetailViewController: UIViewController {
     }
 
     func loadImage() {
+        loadingIndicator.startAnimating()
         if let url = URL(string: experience.imageUrl) {
             imageLoader.getImageFrom(url: url) { image in
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
                     guard let image = image else {
                         self.imgView.image = UIImage(systemName: "photo.fill")
+                        self.loadingIndicator.stopAnimating()
                         return
                     }
                     self.imgView.image = image
+                    self.loadingIndicator.stopAnimating()
                 }
             }
+            return
+        } else {
+            imgView.image = UIImage(systemName: "photo.fill")
+            loadingIndicator.stopAnimating()
         }
     }
 
@@ -84,6 +99,7 @@ class ExperienceDetailViewController: UIViewController {
         self.view.backgroundColor = .systemBackground
         self.view.addSubview(titleLabel)
         self.view.addSubview(imgView)
+        self.view.addSubview(loadingIndicator)
         self.view.addSubview(subtitleLabel)
         self.view.addSubview(descriptionLabel)
 
@@ -92,6 +108,9 @@ class ExperienceDetailViewController: UIViewController {
             imgView.heightAnchor.constraint(equalToConstant: 120),
             imgView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 8.0),
             imgView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -8.0),
+
+            loadingIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
 
             titleLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 8.0),
             titleLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),

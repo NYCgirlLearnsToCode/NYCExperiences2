@@ -101,6 +101,11 @@ class ExperienceCell: UICollectionViewCell {
 
                 DispatchQueue.main.async {
                     guard let self = self, self.representedImageUrl == url else { return }
+                    guard let image = image else {
+                        self.loadingIndicator.stopAnimating()
+                        self.imgView.image = UIImage(systemName: "photo.fill")
+                        return
+                    }
                     self.imgView.image = image
                     self.loadingIndicator.stopAnimating()
                 }
