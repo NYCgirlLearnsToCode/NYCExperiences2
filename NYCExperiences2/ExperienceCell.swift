@@ -16,7 +16,7 @@ class ExperienceCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .preferredFont(forTextStyle: .headline)
-        label.numberOfLines = 1
+        label.numberOfLines = 0
         return label
     }()
 
@@ -76,12 +76,12 @@ class ExperienceCell: UICollectionViewCell {
             imgView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             imgView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8.0),
             imgView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            imgView.heightAnchor.constraint(equalToConstant: 120),
+            imgView.heightAnchor.constraint(equalToConstant: 180),
 
             subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             subtitleLabel.topAnchor.constraint(equalTo: imgView.bottomAnchor, constant: 8.0),
-            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8.0),
 
             loadingIndicator.centerXAnchor.constraint(equalTo: imgView.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: imgView.centerYAnchor)

@@ -11,10 +11,20 @@ class ExperiencesViewController: UIViewController {
 
     private let imageLoader: ImageLoader = URLSessionImageLoader()
     
-    var experiences = [Experience]()
+    var experiences = [Experience]() {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 350, height: 220)
+        layout.scrollDirection = .vertical
+        layout.sectionInset = UIEdgeInsets(
+            top: 12,
+            left: 16,
+            bottom: 12,
+            right: 16
+        )
 
         let collView = UICollectionView(
             frame: .zero,
@@ -26,6 +36,13 @@ class ExperiencesViewController: UIViewController {
         return collView
     }()
 
+    private lazy var loaderView: UIActivityIndicatorView = {
+        let loader = UIActivityIndicatorView(style: .large)
+        loader.hidesWhenStopped = true
+        loader.translatesAutoresizingMaskIntoConstraints = false
+        return loader
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.dataSource = self
@@ -34,25 +51,36 @@ class ExperiencesViewController: UIViewController {
                                 forCellWithReuseIdentifier: "Cell")
         self.view.backgroundColor = .systemBackground
         self.title = "NYC Experiences"
-        ProductService().getProducts() { products in
-//      TODO: add converted products to experiences
-//            for product in products {
-//                self.experiences.append(Experience(product: product))
-//            }
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.loaderView.startAnimating()
+        }
+        ProductService().getProducts() { [weak self] products in
+            guard let self = self else { return }
+            if let products = products {
+                DispatchQueue.main.async {
+                    self.experiences = products.map {Experience(product: $0)}
+                    self.loaderView.stopAnimating()
+                }
+            } else {
+                self.loaderView.stopAnimating()
+            }
         }
         setupViews()
-
-        
     }
 
     func setupViews() {
         view.addSubview(collectionView)
+        view.addSubview(loaderView)
 
         NSLayoutConstraint.activate([
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            loaderView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loaderView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
 }
@@ -65,6 +93,13 @@ extension ExperiencesViewController: UICollectionViewDelegate {
         let detailVC = ExperienceDetailViewController(experience: experience, imageLoader: self.imageLoader)
         //navigate to detail vc
         self.navigationController?.pushViewController(detailVC, animated: true)
+    }
+}
+
+extension ExperiencesViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.bounds.width - 32
+        return CGSize(width: width, height: 280)
     }
 }
 
