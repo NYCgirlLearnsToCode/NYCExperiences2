@@ -7,15 +7,42 @@
 
 import UIKit
 
+enum ViewState {
+    case loadedWithProducts
+    case loadedNoProducts
+    case failure(error: Error)
+    case loading
+}
+
 class ExperiencesViewController: UIViewController {
 
     private let imageLoader: ImageLoader = URLSessionImageLoader()
-    
+
+    var currentState: ViewState = .loading {
+        didSet {
+            switch currentState {
+            case .loadedWithProducts:
+                collectionView.backgroundView = nil
+                loaderView.stopAnimating()
+            case .loadedNoProducts:
+                collectionView.backgroundView = emptyStateView
+                loaderView.stopAnimating()
+            case .failure:
+                collectionView.backgroundView = errorView
+                loaderView.stopAnimating()
+            case .loading:
+                collectionView.backgroundView = nil
+                loaderView.startAnimating()
+            }
+        }
+    }
+
     var experiences = [Experience]() {
         didSet {
             collectionView.reloadData()
         }
     }
+
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -43,6 +70,16 @@ class ExperiencesViewController: UIViewController {
         return loader
     }()
 
+    private lazy var emptyStateView: EmptyStateView = {
+        let view = EmptyStateView()
+        return view
+    }()
+
+    private lazy var errorView: ErrorView = {
+        let view = ErrorView()
+        return view
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         collectionView.dataSource = self
@@ -51,22 +88,32 @@ class ExperiencesViewController: UIViewController {
                                 forCellWithReuseIdentifier: "Cell")
         self.view.backgroundColor = .systemBackground
         self.title = "NYC Experiences"
-        DispatchQueue.main.async { [weak self] in
+
+        setupViews()
+        setupErrorView()
+        getProducts()
+    }
+
+    private func getProducts() {
+        currentState = .loading
+        loaderView.startAnimating()
+        ProductService().getProducts() { [weak self] result in
             guard let self = self else { return }
-            self.loaderView.startAnimating()
-        }
-        ProductService().getProducts() { [weak self] products in
-            guard let self = self else { return }
-            if let products = products {
-                DispatchQueue.main.async {
-                    self.experiences = products.map {Experience(product: $0)}
-                    self.loaderView.stopAnimating()
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let products):
+                    if products.isEmpty {
+                        self.currentState = .loadedNoProducts
+                    } else {
+                        self.experiences = products.map { Experience(product: $0)}
+                        self.currentState = .loadedWithProducts
+                    }
+                case .failure(let error):
+                    self.currentState = .failure(error: error)
                 }
-            } else {
                 self.loaderView.stopAnimating()
             }
         }
-        setupViews()
     }
 
     func setupViews() {
@@ -83,13 +130,18 @@ class ExperiencesViewController: UIViewController {
             loaderView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+
+    func setupErrorView() {
+        errorView.onRetryTapped = { [weak self] in
+            guard let self = self else { return }
+            self.getProducts()
+        }
+    }
 }
 
 extension ExperiencesViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // grab experience
         let experience = experiences[indexPath.row]
-        // pass experience to detail vc
         let detailVC = ExperienceDetailViewController(experience: experience, imageLoader: self.imageLoader)
         //navigate to detail vc
         self.navigationController?.pushViewController(detailVC, animated: true)

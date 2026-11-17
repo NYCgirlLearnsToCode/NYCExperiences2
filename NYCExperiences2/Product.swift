@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct ProductsWrapper: Codable {
+nonisolated struct ProductsWrapper: Codable, Sendable {
     let products: [Product]
 }
 
-struct Product: Codable {
+nonisolated struct Product: Codable, Sendable {
     let id: Int
     let title: String
     let description: String
