@@ -27,7 +27,8 @@ class ExperiencesViewController: UIViewController {
             case .loadedNoProducts:
                 collectionView.backgroundView = emptyStateView
                 loaderView.stopAnimating()
-            case .failure:
+            case .failure(let error):
+                errorView.configure(with: error)
                 collectionView.backgroundView = errorView
                 loaderView.stopAnimating()
             case .loading:
@@ -77,6 +78,9 @@ class ExperiencesViewController: UIViewController {
 
     private lazy var errorView: ErrorView = {
         let view = ErrorView()
+        view.onRetryTapped = { [weak self] in
+            self?.getProducts()
+        }
         return view
     }()
 
@@ -90,13 +94,11 @@ class ExperiencesViewController: UIViewController {
         self.title = "NYC Experiences"
 
         setupViews()
-        setupErrorView()
         getProducts()
     }
 
     private func getProducts() {
         currentState = .loading
-        loaderView.startAnimating()
         ProductService().getProducts() { [weak self] result in
             guard let self = self else { return }
             DispatchQueue.main.async {
@@ -111,7 +113,6 @@ class ExperiencesViewController: UIViewController {
                 case .failure(let error):
                     self.currentState = .failure(error: error)
                 }
-                self.loaderView.stopAnimating()
             }
         }
     }
@@ -130,20 +131,12 @@ class ExperiencesViewController: UIViewController {
             loaderView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-
-    func setupErrorView() {
-        errorView.onRetryTapped = { [weak self] in
-            guard let self = self else { return }
-            self.getProducts()
-        }
-    }
 }
 
 extension ExperiencesViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let experience = experiences[indexPath.row]
         let detailVC = ExperienceDetailViewController(experience: experience, imageLoader: self.imageLoader)
-        //navigate to detail vc
         self.navigationController?.pushViewController(detailVC, animated: true)
     }
 }

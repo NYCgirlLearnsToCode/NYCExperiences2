@@ -20,7 +20,6 @@ class EmptyStateView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
-        backgroundColor = .cyan
     }
     
     required init?(coder: NSCoder) {

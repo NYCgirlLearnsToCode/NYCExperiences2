@@ -24,7 +24,6 @@ class ExperienceDetailViewController: UIViewController {
 
     private lazy var imgView: UIImageView = {
         let imgView = UIImageView()
-        imgView.backgroundColor = .systemCyan
         imgView.translatesAutoresizingMaskIntoConstraints = false
         imgView.contentMode = .scaleAspectFill
         imgView.clipsToBounds = true

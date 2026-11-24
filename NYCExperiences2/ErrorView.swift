@@ -11,6 +11,8 @@ class ErrorView: UIView {
 
     private lazy var errorLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -43,7 +45,8 @@ class ErrorView: UIView {
             for: .touchUpInside)
 
         NSLayoutConstraint.activate([
-            errorLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            errorLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8.0),
+            errorLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8.0),
             errorLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
 
             retryButton.centerXAnchor.constraint(equalTo: centerXAnchor),
@@ -53,5 +56,9 @@ class ErrorView: UIView {
 
     @objc private func retryButtonTapped() {
         onRetryTapped?()
+    }
+
+    func configure(with error: Error) {
+        errorLabel.text = error.localizedDescription
     }
 }

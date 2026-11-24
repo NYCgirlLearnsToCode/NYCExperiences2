@@ -17,7 +17,6 @@ enum ProductServiceError: Error {
 class ProductService {
     func getProducts(completion: @escaping (Result<[Product], Error>) -> Void) {
         guard let url = URL(string: "https://dummyjson.com/products?limit=10") else {
-            https://dummyjson.com/products/category/nonexistent
             print("invalid url")
             completion(.failure(ProductServiceError.invalidURL))
             return
